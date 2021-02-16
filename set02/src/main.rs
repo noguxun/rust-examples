@@ -1,7 +1,5 @@
 mod async_join;
 
-
-
 #[tokio::main]
 async fn main() {
     println!("====================");
