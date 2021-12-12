@@ -59,14 +59,13 @@ async fn do_stuff3(header: &str, value: String) -> Data {
 
 pub async fn run() {
     // https://docs.rs/tokio/0.2.18/tokio/macro.join.html
-    /*
-        println!("Test tokio::join");
-        let (first, second) = tokio::join!(do_stuff1(), do_stuff2());
 
-        println!("first {}", first.resp);
-        println!("second {}", second.resp);
+    println!("Test tokio::join");
+    let (first, second) = tokio::join!(do_stuff1(), do_stuff2());
 
-    */
+    println!("first {}", first.resp);
+    println!("second {}", second.resp);
+
     println!("Test tokio::spawn, await");
     let mut handle_vec = Vec::new();
 
@@ -79,6 +78,6 @@ pub async fn run() {
 
     while let Some(handle) = handle_vec.pop() {
         let data = handle.await.unwrap();
-        //println!("got {}", data.resp);
+        println!("got {}", data.resp);
     }
 }

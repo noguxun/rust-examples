@@ -1,10 +1,11 @@
-mod async_join;
+mod spawn_join;
+mod concurrent_join;
 
 #[tokio::main]
 async fn main() {
-    println!("====================");
-    println!(" Asnyc Join");
-    println!("====================");
-    async_join::run().await;
+    spawn_join::run().await;
+
     println!("\n");
+
+    concurrent_join::speak().await;
 }
