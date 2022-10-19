@@ -1,0 +1,24 @@
+[package]
+name = "rust_test"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+threadpool = "^1.8"
+hdrhistogram = "^7.5"
+flate2 = "^1.0"
+toml = "^0.5"
+serde = {version="^1.0", features = ["derive"]}
+bincode = "^1.3"
+ipnet = {version = "^2.5", features = ["serde"]}
+arc-cache = "^0.2"
+serde_json = "^1.0"
+tokio = { version = "^1.21", features = ["rt", "macros", "rt-multi-thread"] }
+reqwest = { version = "^0.11", features = ["json"] }
+futures = "^0.3"
+lazy_static = "^1.4"
+anyhow = "^1.0"
+rayon = "^1.5"
+
