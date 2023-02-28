@@ -1,7 +1,7 @@
-use std::sync::mpsc;
-use std::{thread, time};
 use anyhow::Result;
 use rayon::prelude::*;
+use std::sync::mpsc;
+use std::{thread, time};
 
 // -------------------------------
 fn process_job(msg: &str) {
@@ -23,9 +23,9 @@ fn basic_thread() {
 }
 
 // -------------------------------
-fn sending_thread()->(mpsc::Receiver<String>, thread::JoinHandle<Result<()>>) {
+fn sending_thread() -> (mpsc::Receiver<String>, thread::JoinHandle<Result<()>>) {
     let (sender, receiver) = mpsc::channel();
-    
+
     let handle = thread::spawn(move || {
         for i in 0..10 {
             let text = format!("msg: {}", i);
@@ -53,12 +53,18 @@ fn channel() {
 
 fn parall_iteration() {
     let v: Vec<_> = (0..10).collect();
-    let w: Vec<_> = v.par_iter().map(|i| {println!("{}", i); i*i}).collect();
+    let w: Vec<_> = v
+        .par_iter()
+        .map(|i| {
+            println!("{}", i);
+            i * i
+        })
+        .collect();
     println!("{:?}", w);
 }
 
 fn multiple_sender() {
-    use std::sync::mpsc::{channel};
+    use std::sync::mpsc::channel;
 
     let (r_sender, r_receiver) = mpsc::sync_channel(1);
     thread::spawn(move || {
@@ -107,7 +113,6 @@ fn multiple_sender() {
     //println!("{}", t.as_nanos())
     //}
 }
-
 
 pub fn test_threading() {
     basic_thread();
