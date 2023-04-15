@@ -1,3 +1,5 @@
+pub mod join;
+mod xml;
 
 #[test]
 fn t0() {
@@ -251,7 +253,6 @@ fn t9() {
     cache.print();
 }
 
-pub mod join;
 #[tokio::test]
 async fn t10() {
     use join;
@@ -382,13 +383,11 @@ fn t17() {
 
 #[test]
 fn t18() {
-    use rand::{thread_rng, Rng};
     use rand::distributions::Alphanumeric;
+    use rand::{thread_rng, Rng};
     let mut rng = thread_rng();
-    let rand_id: String = (0..8)
-        .map(|_| rng.sample(Alphanumeric) as char)
-        .collect();
-    
+    let rand_id: String = (0..8).map(|_| rng.sample(Alphanumeric) as char).collect();
+
     let rand_int = rng.gen_range(0..100);
     println!("Integer: {}, ID: {}", rand_int, rand_id);
 }
@@ -402,56 +401,65 @@ fn t19() {
         v: Vec<i64>,
     }
     {
-        let a1 = A {a: 1, v: vec![1, 2, 3]};
-        let a2 = A {a: 2, v: vec![4, 5, 6]};
-        let a3 = A {a: 3, v: vec![7, 8, 9, 10]};
-    
+        let a1 = A {
+            a: 1,
+            v: vec![1, 2, 3],
+        };
+        let a2 = A {
+            a: 2,
+            v: vec![4, 5, 6],
+        };
+        let a3 = A {
+            a: 3,
+            v: vec![7, 8, 9, 10],
+        };
+
         let mut v = vec![a1, a2];
-    
+
         dbg!(&v);
-    
-       // let a = std::mem::replace(&mut v[0], a3);
+
+        // let a = std::mem::replace(&mut v[0], a3);
         let a0 = &mut v[0];
-       let a = std::mem::replace(a0, a3);
-    
-        
+        let a = std::mem::replace(a0, a3);
+
         dbg!(&a);
         dbg!(a0);
-    
+
         assert!(v[0].a == 3);
         assert!(v[0].v.len() == 4 && v[0].v[0] == 7);
     }
 
     {
-        let a1 = A {a: 1, v: vec![1, 2, 3]};
-        let a2 = A {a: 2, v: vec![4, 5, 6]};
-        let a3 = A {a: 3, v: vec![7, 8, 9, 10]};
-    
-        let mut v = [a1, a2];
-    
+        let a1 = A {
+            a: 1,
+            v: vec![1, 2, 3],
+        };
+        let a2 = A {
+            a: 2,
+            v: vec![4, 5, 6],
+        };
+        let a3 = A {
+            a: 3,
+            v: vec![7, 8, 9, 10],
+        };
 
-    
+        let mut v = [a1, a2];
+
         _ = std::mem::replace(&mut v[0], a3);
-    
+
         assert!(v[0].a == 3);
         assert!(v[0].v.len() == 4 && v[0].v[0] == 7);
     }
-    
- }
-
- #[test]
-fn t20() {
-
 }
 
+#[test]
+fn t20() {}
 
 #[test]
 fn t21() {
-    use std::collections::HashMap;
+    use rkyv::CheckBytes;
     use rkyv::{Archive, Deserialize, Serialize};
-
-    use bytecheck::CheckBytes;
-
+    use std::collections::HashMap;
 
     #[derive(Archive, Deserialize, Serialize, Debug, PartialEq)]
     #[archive(compare(PartialEq))]
@@ -466,7 +474,6 @@ fn t21() {
         int: 42,
         string: "hello world".to_string(),
         option: Some(vec![1, 2, 3, 4]),
-        
     };
 
     // Serializing is as easy as a single function call
@@ -479,7 +486,6 @@ fn t21() {
     let deserialized: Test = archived.deserialize(&mut rkyv::Infallible).unwrap();
     assert_eq!(archived, &value);
     dbg!(&value, &archived, deserialized);
-    
 
     #[derive(Archive, Debug, Deserialize, Serialize)]
     #[archive_attr(derive(CheckBytes, Debug))]
@@ -490,7 +496,10 @@ fn t21() {
 
     let value = Ad {
         duration: 42.0,
-        assets: [("Japan".to_string(), "Tokyo".to_string()),].iter().cloned().collect(),
+        assets: [("Japan".to_string(), "Tokyo".to_string())]
+            .iter()
+            .cloned()
+            .collect(),
     };
 
     let bytes = rkyv::to_bytes::<_, 256>(&value).unwrap();
@@ -510,20 +519,37 @@ fn t22() {
     let mut gu = Gu {
         m: Some("abc".to_string()),
     };
-    
-    
+
     if let Some(k) = gu.m.as_mut() {
         *k = "def".to_string();
         println!("k {}", k);
     }
-    
+
     println!("gu m {:?}", gu.m);
-
-
 
     if let Some(k) = gu.m.as_ref() {
         println!("k {}", k);
     }
-    
+
     println!("gu m {:?}", gu.m);
+}
+
+#[test]
+fn t23() {
+    use bitflags::bitflags;
+
+    bitflags! {
+        struct Flag: u32 {
+            const A = 0b00000001;
+            const B = 0b00000010;
+            const C = 0b00000100;
+            const ABC = Self::A.bits | Self::B.bits | Self::C.bits;
+        }
+    }
+
+    let e: Flag = Flag { bits: 5 };
+
+    assert!(e.contains(Flag::A));
+    assert!(!e.contains(Flag::B));
+    assert!(e.contains(Flag::C));
 }
