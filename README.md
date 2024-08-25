@@ -1,6 +1,6 @@
 # rust-examples
 
 ```
-cargo test -- --nocpature
+cargo test -- --nocapture
 cargo test t23 -- --nocapture
 ```

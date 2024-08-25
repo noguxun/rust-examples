@@ -104,6 +104,7 @@ pub fn test_cell() {
 pub fn test_rc_cell() {
     #[derive(Debug)]
     enum List {
+        #[allow(dead_code)]
         Cons(Rc<RefCell<i32>>, Rc<List>),
         Nil,
     }

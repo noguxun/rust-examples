@@ -157,6 +157,7 @@ fn t5() {
 
 #[test]
 fn t6() {
+    /*
     use flate2::bufread::GzDecoder;
     use std::fs::File;
     use std::io::BufReader;
@@ -171,6 +172,7 @@ fn t6() {
 
     let size = f.read_to_end(&mut buffer).unwrap();
     dbg!(size, buffer.len());
+    */
 }
 
 #[test]
@@ -277,15 +279,6 @@ fn t11() {
     test_rwlock();
 }
 
-#[test]
-fn t12() {
-    use std::fs;
-
-    let path = "/Users/gu/Downloads/fromage_2IZVyZ0SSSLSwpInq7h3Fp.json";
-    let from_age = fs::read_to_string(path).unwrap();
-    println!("{}", from_age);
-}
-
 #[tokio::test]
 async fn t13() {
     {
@@ -313,8 +306,9 @@ async fn t13() {
 
 #[test]
 fn t14() {
-    let res = reqwest::blocking::get("https://ipinfo.edgecompute.app/167.82.234.25?src=fastly-geo")
-        .unwrap();
+    let url = "https://demo-kabuka.e-shiten.jp/e_api_v4r5/";
+    // let url = "https://ipinfo.edgecompute.app/167.82.234.25?src=fastly-geo";
+    let res = reqwest::blocking::get(url).unwrap();
     let resp_str = res.text().unwrap();
     println!("{}", resp_str);
 }
@@ -453,17 +447,12 @@ fn t19() {
 }
 
 #[test]
-fn t20() {}
-
-#[test]
 fn t21() {
-    use rkyv::CheckBytes;
-    use rkyv::{Archive, Deserialize, Serialize};
+    use rkyv::Deserialize;
     use std::collections::HashMap;
 
-    #[derive(Archive, Deserialize, Serialize, Debug, PartialEq)]
-    #[archive(compare(PartialEq))]
-    #[archive_attr(derive(CheckBytes, Debug))]
+    #[derive(Default, Debug, rkyv::Archive, rkyv::Deserialize, rkyv::Serialize)]
+    #[archive(check_bytes)]
     struct Test {
         int: u8,
         string: String,
@@ -484,11 +473,12 @@ fn t21() {
     // let archived = rkyv::check_archived_root::<Test>(&bytes[..]).unwrap();
     let archived = rkyv::check_archived_root::<Test>(&bu8).unwrap();
     let deserialized: Test = archived.deserialize(&mut rkyv::Infallible).unwrap();
-    assert_eq!(archived, &value);
-    dbg!(&value, &archived, deserialized);
+    assert_eq!(deserialized.string, value.string);
+    assert_eq!(deserialized.int, value.int);
+    assert_eq!(deserialized.option, value.option);
 
-    #[derive(Archive, Debug, Deserialize, Serialize)]
-    #[archive_attr(derive(CheckBytes, Debug))]
+    #[derive(Default, Debug, rkyv::Archive, rkyv::Deserialize, rkyv::Serialize)]
+    #[archive(check_bytes)]
     struct Ad {
         duration: f32,
         assets: HashMap<String, String>,
@@ -507,8 +497,9 @@ fn t21() {
     dbg!(&bu8.len());
     let archived = rkyv::check_archived_root::<Ad>(&bu8).unwrap();
     let deserialized: Ad = archived.deserialize(&mut rkyv::Infallible).unwrap();
-    //assert_eq!(archived, &value);
-    dbg!(&value, &archived, deserialized);
+
+    assert_eq!(deserialized.duration, value.duration);
+    assert_eq!(deserialized.assets, value.assets);
 }
 
 #[test]
@@ -539,17 +530,29 @@ fn t23() {
     use bitflags::bitflags;
 
     bitflags! {
-        struct Flag: u32 {
+        struct Flags: u32 {
             const A = 0b00000001;
             const B = 0b00000010;
             const C = 0b00000100;
-            const ABC = Self::A.bits | Self::B.bits | Self::C.bits;
+            const ABC = Self::A.bits() | Self::B.bits() | Self::C.bits();
         }
     }
 
-    let e: Flag = Flag { bits: 5 };
+    let e = Flags::A | Flags::C;
 
-    assert!(e.contains(Flag::A));
-    assert!(!e.contains(Flag::B));
-    assert!(e.contains(Flag::C));
+    assert!(e.contains(Flags::A));
+    assert!(!e.contains(Flags::B));
+    assert!(e.contains(Flags::C));
+}
+
+pub mod errors;
+#[test]
+fn t24() {
+    let _ = errors::error_stuff();
+}
+
+pub mod cow;
+#[test]
+fn t25() {
+    cow::cow_array();
 }
