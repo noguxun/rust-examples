@@ -1,8 +1,9 @@
+mod hyper;
 pub mod join;
 mod xml;
 
 #[test]
-fn t0() {
+fn t000() {
     fn run() {
         use serde_json::Value;
 
@@ -51,7 +52,7 @@ fn t0() {
 }
 
 #[test]
-fn t1() {
+fn t001() {
     let c = 3;
 
     let s = match c {
@@ -64,12 +65,12 @@ fn t1() {
 
 pub mod threading;
 #[test]
-fn t2() {
+fn t002() {
     threading::test_threading();
 }
 
 #[test]
-fn t3() {
+fn t003() {
     use std::collections::HashMap;
 
     let mut p = HashMap::new();
@@ -91,7 +92,7 @@ fn t3() {
 }
 
 #[test]
-fn t4() {
+fn t004() {
     use hdrhistogram::Histogram;
 
     // Must be in the range [0, 5]. If you're not sure, use 3.
@@ -128,7 +129,7 @@ fn t4() {
 }
 
 #[test]
-fn t5() {
+fn t005() {
     use std::sync::mpsc::channel;
     use std::{thread, time};
 
@@ -156,7 +157,7 @@ fn t5() {
 }
 
 #[test]
-fn t6() {
+fn t006() {
     /*
     use flate2::bufread::GzDecoder;
     use std::fs::File;
@@ -176,7 +177,7 @@ fn t6() {
 }
 
 #[test]
-fn t7() {
+fn t007() {
     use serde::Deserialize;
 
     //https://learnxinyminutes.com/docs/toml/
@@ -210,7 +211,7 @@ fn t7() {
 }
 
 #[test]
-fn t8() {
+fn t008() {
     use ipnet::Ipv4Net;
 
     // serialize Vec IpNet to binary
@@ -232,7 +233,7 @@ fn t8() {
 }
 
 #[test]
-fn t9() {
+fn t009() {
     use arc_cache::ArcCache;
     use std::hash::Hash;
 
@@ -256,7 +257,7 @@ fn t9() {
 }
 
 #[tokio::test]
-async fn t10() {
+async fn t010() {
     use join;
     join::spawn::run().await;
     join::concurrent::speak().await;
@@ -265,7 +266,7 @@ async fn t10() {
 
 pub mod container;
 #[test]
-fn t11() {
+fn t011() {
     use container::*;
     test_box();
     test_rc();
@@ -280,7 +281,7 @@ fn t11() {
 }
 
 #[tokio::test]
-async fn t13() {
+async fn t013() {
     {
         let client = reqwest::Client::new();
 
@@ -305,7 +306,7 @@ async fn t13() {
 }
 
 #[test]
-fn t14() {
+fn t014() {
     let url = "https://demo-kabuka.e-shiten.jp/e_api_v4r5/";
     // let url = "https://ipinfo.edgecompute.app/167.82.234.25?src=fastly-geo";
     let res = reqwest::blocking::get(url).unwrap();
@@ -314,7 +315,7 @@ fn t14() {
 }
 
 #[test]
-fn t15() {
+fn t015() {
     use regex::Regex;
     // Regular expression to check if a string is a IPv6 or IPv4 address
     let re_ip46 = Regex::new("^(?:[0-9]{1,3}.){3}[0-9]{1,3}|(([a-f0-9:]+:+)+[a-f0-9]+)$").unwrap();
@@ -324,7 +325,7 @@ fn t15() {
 }
 
 #[test]
-fn t16() {
+fn t016() {
     // https://users.rust-lang.org/t/how-to-compare-2-enum-variables/59753/7?u=noguxun
     #[derive(PartialEq)]
     enum E {
@@ -345,7 +346,7 @@ fn t16() {
 }
 
 #[test]
-fn t17() {
+fn t017() {
     let a = "xyz";
     let b = "abc";
     let c = "xxx";
@@ -376,7 +377,7 @@ fn t17() {
 }
 
 #[test]
-fn t18() {
+fn t018() {
     use rand::distributions::Alphanumeric;
     use rand::{thread_rng, Rng};
     let mut rng = thread_rng();
@@ -387,7 +388,7 @@ fn t18() {
 }
 
 #[test]
-fn t19() {
+fn t019() {
     // https://doc.rust-lang.org/std/mem/fn.replace.html
     #[derive(Debug, Default)]
     struct A {
@@ -448,11 +449,10 @@ fn t19() {
 
 #[test]
 fn t21() {
-    use rkyv::Deserialize;
+    use rkyv::rancor::Error;
     use std::collections::HashMap;
 
     #[derive(Default, Debug, rkyv::Archive, rkyv::Deserialize, rkyv::Serialize)]
-    #[archive(check_bytes)]
     struct Test {
         int: u8,
         string: String,
@@ -466,19 +466,17 @@ fn t21() {
     };
 
     // Serializing is as easy as a single function call
-    let bytes = rkyv::to_bytes::<_, 256>(&value).unwrap();
+    let bytes = rkyv::to_bytes::<Error>(&value).unwrap();
     let bu8 = bytes.as_slice();
     dbg!(&bu8.len());
 
     // let archived = rkyv::check_archived_root::<Test>(&bytes[..]).unwrap();
-    let archived = rkyv::check_archived_root::<Test>(&bu8).unwrap();
-    let deserialized: Test = archived.deserialize(&mut rkyv::Infallible).unwrap();
+    let deserialized = rkyv::from_bytes::<Test, Error>(&bu8).unwrap();
     assert_eq!(deserialized.string, value.string);
     assert_eq!(deserialized.int, value.int);
     assert_eq!(deserialized.option, value.option);
 
     #[derive(Default, Debug, rkyv::Archive, rkyv::Deserialize, rkyv::Serialize)]
-    #[archive(check_bytes)]
     struct Ad {
         duration: f32,
         assets: HashMap<String, String>,
@@ -492,11 +490,10 @@ fn t21() {
             .collect(),
     };
 
-    let bytes = rkyv::to_bytes::<_, 256>(&value).unwrap();
+    let bytes = rkyv::to_bytes::<Error>(&value).unwrap();
     let bu8 = bytes.as_slice();
     dbg!(&bu8.len());
-    let archived = rkyv::check_archived_root::<Ad>(&bu8).unwrap();
-    let deserialized: Ad = archived.deserialize(&mut rkyv::Infallible).unwrap();
+    let deserialized = rkyv::from_bytes::<Ad, Error>(&bu8).unwrap();
 
     assert_eq!(deserialized.duration, value.duration);
     assert_eq!(deserialized.assets, value.assets);
@@ -555,4 +552,11 @@ pub mod cow;
 #[test]
 fn t25() {
     cow::cow_array();
+}
+
+
+pub mod jwt;
+#[test]
+fn t26() {
+    jwt::jwks();
 }
